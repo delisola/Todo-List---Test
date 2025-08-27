@@ -1,36 +1,106 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Todo List App
 
-## Getting Started
+Uma aplicação moderna de Todo List desenvolvida com NextJS, TypeScript, Tailwind CSS e Supabase.
 
-First, run the development server:
+## Funcionalidades
+
+- ✅ **Criar** - Adicionar novas tarefas
+- ✅ **Editar** - Modificar tarefas existentes
+- ✅ **Excluir** - Remover tarefas
+- ✅ **Marcar como Feito** - Marcar/desmarcar conclusão
+- ✅ **Campos obrigatórios:**
+  - Título (obrigatório)
+  - Descrição (opcional)
+  - Data de vencimento (opcional)
+- ✅ **Botão "Aperfeiçoar com AI"** - Integração com IA para melhorar tarefas
+
+## Design
+
+O design segue a referência fornecida com:
+- Fundo vermelho escuro
+- Cards brancos para tarefas
+- Layout limpo e moderno
+- Interface responsiva
+
+## Configuração
+
+### 1. Instalar dependências
+
+```bash
+npm install
+```
+
+### 2. Configurar Supabase
+
+1. Crie uma conta no [Supabase](https://supabase.com)
+2. Crie um novo projeto
+3. Execute o script SQL do arquivo `database/schema.sql` no SQL Editor do Supabase
+4. Copie as credenciais do projeto
+
+### 3. Configurar variáveis de ambiente
+
+Crie um arquivo `.env.local` na raiz do projeto com:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=sua_url_do_supabase
+NEXT_PUBLIC_SUPABASE_ANON_KEY=sua_chave_anonima_do_supabase
+```
+
+### 4. Executar a aplicação
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+A aplicação estará disponível em `http://localhost:3000`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Estrutura do Projeto
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+src/
+├── app/
+│   ├── layout.tsx
+│   ├── page.tsx
+│   └── globals.css
+├── components/
+│   ├── TodoList.tsx
+│   ├── TodoItem.tsx
+│   └── TodoForm.tsx
+├── lib/
+│   ├── supabase.ts
+│   └── todoService.ts
+└── types/
+    └── todo.ts
+```
 
-## Learn More
+## Tecnologias Utilizadas
 
-To learn more about Next.js, take a look at the following resources:
+- **Next.js 14** - Framework React
+- **TypeScript** - Tipagem estática
+- **Tailwind CSS** - Estilização
+- **Supabase** - Banco de dados e autenticação
+- **React Hooks** - Gerenciamento de estado
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Funcionalidades da IA
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+O botão "Aperfeiçoar com AI" permite:
+- Melhorar títulos de tarefas
+- Expandir descrições
+- Sugerir melhorias baseadas no prompt do usuário
 
-## Deploy on Vercel
+Para integrar com uma API de IA real (como OpenAI), modifique a função `handleAIImprove` no componente `TodoItem.tsx`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Scripts Disponíveis
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `npm run dev` - Executar em modo de desenvolvimento
+- `npm run build` - Build para produção
+- `npm run start` - Executar build de produção
+- `npm run lint` - Executar linter
+
+## Contribuição
+
+1. Faça um fork do projeto
+2. Crie uma branch para sua feature
+3. Commit suas mudanças
+4. Push para a branch
+5. Abra um Pull Request
