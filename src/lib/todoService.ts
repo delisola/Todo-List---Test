@@ -2,7 +2,7 @@ import { supabase } from './supabase'
 import { Todo, CreateTodoData, UpdateTodoData } from '@/types/todo'
 
 export const todoService = {
-  // Buscar todos os todos
+  // Get all todos
   async getAllTodos(): Promise<Todo[]> {
     try {
       const { data, error } = await supabase
@@ -13,12 +13,12 @@ export const todoService = {
       if (error) throw error
       return data || []
     } catch (error) {
-      console.error('Erro ao buscar todos:', error)
+      console.error('Error fetching todos:', error)
       return []
     }
   },
 
-  // Criar novo todo
+  // Create new todo
   async createTodo(todoData: CreateTodoData): Promise<Todo | null> {
     try {
       const { data, error } = await supabase
@@ -30,12 +30,12 @@ export const todoService = {
       if (error) throw error
       return data
     } catch (error) {
-      console.error('Erro ao criar todo:', error)
+      console.error('Error creating todo:', error)
       throw error
     }
   },
 
-  // Atualizar todo
+  // Update todo
   async updateTodo(id: string, updates: UpdateTodoData): Promise<Todo | null> {
     try {
       const { data, error } = await supabase
@@ -48,12 +48,12 @@ export const todoService = {
       if (error) throw error
       return data
     } catch (error) {
-      console.error('Erro ao atualizar todo:', error)
+      console.error('Error updating todo:', error)
       throw error
     }
   },
 
-  // Excluir todo
+  // Delete todo
   async deleteTodo(id: string): Promise<void> {
     try {
       const { error } = await supabase
@@ -63,12 +63,12 @@ export const todoService = {
       
       if (error) throw error
     } catch (error) {
-      console.error('Erro ao excluir todo:', error)
+      console.error('Error deleting todo:', error)
       throw error
     }
   },
 
-  // Marcar como feito/não feito
+  // Mark as done/undone
   async toggleTodo(id: string, completed: boolean): Promise<Todo | null> {
     return this.updateTodo(id, { completed })
   }

@@ -20,7 +20,7 @@ export default function TodoForm({ onClose, onSuccess }: TodoFormProps) {
     e.preventDefault()
     
     if (!formData.title.trim()) {
-      alert('Por favor, insira um título para a tarefa.')
+      alert('Please enter a title for the task.')
       return
     }
 
@@ -35,8 +35,8 @@ export default function TodoForm({ onClose, onSuccess }: TodoFormProps) {
       setFormData({ title: '', description: '', due_date: '' })
       onSuccess()
     } catch (error) {
-      console.error('Erro ao criar todo:', error)
-      alert('Erro ao criar tarefa. Tente novamente.')
+      console.error('Error creating todo:', error)
+      alert('Error creating task. Please try again.')
     } finally {
       setIsLoading(false)
     }
@@ -44,9 +44,9 @@ export default function TodoForm({ onClose, onSuccess }: TodoFormProps) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-black/10 backdrop-blur-sm rounded-lg p-6 w-full max-w-md border border-white/20">
+      <div className="bg-black/30 backdrop-blur-sm rounded-lg p-6 w-full max-w-md border border-white/20">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-white">Nova Tarefa</h2>
+          <h2 className="text-xl font-semibold text-white">New Task</h2>
           <button
             onClick={onClose}
             className="text-white/80 hover:text-white"
@@ -60,40 +60,40 @@ export default function TodoForm({ onClose, onSuccess }: TodoFormProps) {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-white mb-1">
-              Título *
+              Title *
             </label>
             <input
               type="text"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              className="w-full px-3 py-2 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent text-white placeholder-white/60 bg-black/10 backdrop-blur-sm"
-              placeholder="Digite o título da tarefa"
+              className="w-full px-3 py-2 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent text-white/75 placeholder-white/60 bg-black/30 backdrop-blur-sm text-sm"
+              placeholder="Enter task title"
               required
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-white mb-1">
-              Descrição
+              Description
             </label>
             <textarea
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full px-3 py-2 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent text-white placeholder-white/60 bg-black/10 backdrop-blur-sm"
-              placeholder="Digite a descrição da tarefa"
+              className="w-full px-3 py-2 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent text-white/75 placeholder-white/60 bg-black/30 backdrop-blur-sm text-sm"
+              placeholder="Enter task description"
               rows={3}
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-white mb-1">
-              Data de Vencimento
+              Due Date
             </label>
             <input
               type="date"
               value={formData.due_date}
               onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
-              className="w-full px-3 py-2 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent text-white bg-black/10 backdrop-blur-sm"
+              className="w-full px-3 py-2 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent text-white/75 bg-black/30 backdrop-blur-sm text-sm"
             />
           </div>
 
@@ -101,16 +101,16 @@ export default function TodoForm({ onClose, onSuccess }: TodoFormProps) {
             <button
               type="submit"
               disabled={isLoading}
-              className="flex-1 bg-black/10 backdrop-blur-sm text-white py-2 px-4 rounded-md hover:bg-black/20 disabled:opacity-50 transition-colors border border-white/20"
+              className="flex-1 bg-black/30 backdrop-blur-sm text-white py-2 px-4 rounded-md hover:bg-black/40 disabled:opacity-50 transition-colors border border-white/20 text-sm"
             >
-              {isLoading ? 'Criando...' : 'Criar Tarefa'}
+              {isLoading ? 'Creating...' : 'Create Task'}
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 bg-black/10 backdrop-blur-sm text-white py-2 px-4 rounded-md hover:bg-black/20 transition-colors border border-white/20"
+              className="flex-1 bg-black/30 backdrop-blur-sm text-white py-2 px-4 rounded-md hover:bg-black/40 transition-colors border border-white/20 text-sm"
             >
-              Cancelar
+              Cancel
             </button>
           </div>
         </form>

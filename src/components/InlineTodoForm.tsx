@@ -1,10 +1,11 @@
 'use client'
 
 import { useState } from 'react'
+import { Todo } from '@/types/todo'
 import { todoService } from '@/lib/todoService'
 
 interface InlineTodoFormProps {
-  onSuccess: () => void
+  onSuccess: (newTodo: Todo) => void
   onCancel: () => void
 }
 
@@ -20,35 +21,37 @@ export default function InlineTodoForm({ onSuccess, onCancel }: InlineTodoFormPr
     e.preventDefault()
     
     if (!formData.title.trim()) {
-      alert('Por favor, insira um título para a tarefa.')
+      alert('Please enter a title for the task.')
       return
     }
 
     try {
       setIsLoading(true)
-      await todoService.createTodo({
+      const newTodo = await todoService.createTodo({
         title: formData.title.trim(),
         description: formData.description.trim(),
         due_date: formData.due_date || null
       })
       
-      setFormData({ title: '', description: '', due_date: '' })
-      onSuccess()
+      if (newTodo) {
+        setFormData({ title: '', description: '', due_date: '' })
+        onSuccess(newTodo)
+      }
     } catch (error) {
-      console.error('Erro ao criar todo:', error)
-      alert('Erro ao criar tarefa. Tente novamente.')
+      console.error('Error creating todo:', error)
+      alert('Error creating task. Please try again.')
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <div className="bg-black/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 shadow-lg">
+    <div className="bg-white/30 backdrop-blur-sm rounded-xl p-4 border border-white/20 shadow-lg">
       <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-lg font-medium text-white">Nova Tarefa</h3>
+                  <h3 className="text-lg font-medium text-black">New Task</h3>
                   <button
             onClick={onCancel}
-            className="text-white/80 hover:text-white transition-colors"
+            className="text-black/80 hover:text-black transition-colors"
           >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -58,42 +61,42 @@ export default function InlineTodoForm({ onSuccess, onCancel }: InlineTodoFormPr
 
       <form onSubmit={handleSubmit} className="space-y-3">
         <div>
-          <label className="block text-sm font-medium text-white mb-1">
-            Título *
+          <label className="block text-sm font-medium text-black mb-1">
+            Title *
           </label>
           <input
             type="text"
             value={formData.title}
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-            className="w-full px-3 py-2 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent text-white placeholder-white/60 bg-black/10 backdrop-blur-sm"
-            placeholder="Digite o título da tarefa"
+            className="w-full px-3 py-2 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent text-black/75 placeholder-white/60 bg-white/30 backdrop-blur-sm text-sm"
+                          placeholder="Enter task title"
             required
             autoFocus
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-white mb-1">
-            Descrição
+          <label className="block text-sm font-medium text-black mb-1">
+            Description
           </label>
           <textarea
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            className="w-full px-3 py-2 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent text-white placeholder-white/60 bg-black/10 backdrop-blur-sm"
-            placeholder="Digite a descrição da tarefa"
+            className="w-full px-3 py-2 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent text-black/75 placeholder-white/60 bg-white/30 backdrop-blur-sm text-sm"
+                          placeholder="Enter task description"
             rows={2}
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-white mb-1">
-            Data de Vencimento
+          <label className="block text-sm font-medium text-black mb-1">
+            Due Date
           </label>
           <input
             type="date"
             value={formData.due_date}
             onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
-            className="w-full px-3 py-2 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent text-white bg-black/10 backdrop-blur-sm"
+            className="w-full px-3 py-2 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent text-black/75 bg-white/30 backdrop-blur-sm text-sm"
           />
         </div>
 
@@ -101,16 +104,16 @@ export default function InlineTodoForm({ onSuccess, onCancel }: InlineTodoFormPr
           <button
             type="submit"
             disabled={isLoading}
-            className="flex-1 bg-black/10 backdrop-blur-sm text-white py-2 px-4 rounded-md disabled:opacity-50 transition-colors duration-300 font-medium border border-white/20 hover:bg-black/20"
+            className="flex-1 bg-white/30 backdrop-blur-sm text-black py-2 px-4 rounded-md disabled:opacity-50 transition-colors duration-300 font-medium border border-white/20 hover:bg-white/40 text-sm"
           >
-            {isLoading ? 'Criando...' : 'Criar Tarefa'}
+            {isLoading ? 'Creating...' : 'Create Task'}
           </button>
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 bg-black/10 backdrop-blur-sm text-white py-2 px-4 rounded-md transition-colors duration-300 font-medium border border-white/20 hover:bg-black/20"
+            className="flex-1 bg-white/30 backdrop-blur-sm text-black py-2 px-4 rounded-md transition-colors duration-300 font-medium border border-white/20 hover:bg-white/40 text-sm"
           >
-            Cancelar
+            Cancel
           </button>
         </div>
       </form>

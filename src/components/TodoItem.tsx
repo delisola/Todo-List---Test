@@ -6,10 +6,11 @@ import { todoService } from '@/lib/todoService'
 
 interface TodoItemProps {
   todo: Todo
-  onUpdate: () => void
+  onUpdate: (updatedTodo: Todo) => void
+  onDelete: (todoId: string) => void
 }
 
-export default function TodoItem({ todo, onUpdate }: TodoItemProps) {
+export default function TodoItem({ todo, onUpdate, onDelete }: TodoItemProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [showAIImprove, setShowAIImprove] = useState(false)
   const [aiPrompt, setAiPrompt] = useState('')
@@ -23,34 +24,36 @@ export default function TodoItem({ todo, onUpdate }: TodoItemProps) {
 
   const handleToggleComplete = async () => {
     try {
-      await todoService.toggleTodo(todo.id, !todo.completed)
-      onUpdate()
+      const updatedTodo = await todoService.toggleTodo(todo.id, !todo.completed)
+      if (updatedTodo) {
+        onUpdate(updatedTodo)
+      }
     } catch (error) {
-      console.error('Erro ao atualizar todo:', error)
+      console.error('Error updating todo:', error)
     }
   }
 
   const handleSave = async () => {
     try {
       setIsLoading(true)
-      await todoService.updateTodo(todo.id, editData)
-      setIsEditing(false)
-      onUpdate()
+      const updatedTodo = await todoService.updateTodo(todo.id, editData)
+      if (updatedTodo) {
+        onUpdate(updatedTodo)
+        setIsEditing(false)
+      }
     } catch (error) {
-      console.error('Erro ao salvar todo:', error)
+      console.error('Error saving todo:', error)
     } finally {
       setIsLoading(false)
     }
   }
 
   const handleDelete = async () => {
-    if (confirm('Tem certeza que deseja excluir esta tarefa?')) {
-      try {
-        await todoService.deleteTodo(todo.id)
-        onUpdate()
-      } catch (error) {
-        console.error('Erro ao excluir todo:', error)
-      }
+    try {
+      await todoService.deleteTodo(todo.id)
+      onDelete(todo.id)
+    } catch (error) {
+      console.error('Error deleting todo:', error)
     }
   }
 
@@ -59,34 +62,36 @@ export default function TodoItem({ todo, onUpdate }: TodoItemProps) {
     
     try {
       setIsLoading(true)
-      // Aqui você pode integrar com uma API de IA como OpenAI
-      // Por enquanto, vou simular uma melhoria simples
-      const improvedTitle = `${editData.title} (Melhorado)`
-      const improvedDescription = `${editData.description}\n\nMelhorias sugeridas pela IA: ${aiPrompt}`
+      // Here you can integrate with an AI API like OpenAI
+      // For now, I'll simulate a simple improvement
+      const improvedTitle = `${editData.title} (Improved)`
+      const improvedDescription = `${editData.description}\n\nAI suggested improvements: ${aiPrompt}`
       
-      await todoService.updateTodo(todo.id, {
+      const updatedTodo = await todoService.updateTodo(todo.id, {
         title: improvedTitle,
         description: improvedDescription
       })
       
-      setEditData({
-        title: improvedTitle,
-        description: improvedDescription,
-        due_date: editData.due_date
-      })
-      
-      setShowAIImprove(false)
-      setAiPrompt('')
-      onUpdate()
+      if (updatedTodo) {
+        setEditData({
+          title: improvedTitle,
+          description: improvedDescription,
+          due_date: editData.due_date
+        })
+        
+        onUpdate(updatedTodo)
+        setShowAIImprove(false)
+        setAiPrompt('')
+      }
     } catch (error) {
-      console.error('Erro ao melhorar com IA:', error)
+      console.error('Error improving with AI:', error)
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <div className="rounded-xl p-4 mb-3 bg-black/10 backdrop-blur-sm border border-white/20">
+    <div className="rounded-xl p-4 mb-3 bg-white/30 backdrop-blur-sm border border-white/20">
       <div className="flex items-center justify-between">
         <div className="flex items-center flex-1">
           <button
@@ -111,21 +116,21 @@ export default function TodoItem({ todo, onUpdate }: TodoItemProps) {
                   type="text"
                   value={editData.title}
                   onChange={(e) => setEditData({ ...editData, title: e.target.value })}
-                  className="w-full px-3 py-2 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent text-white placeholder-white/60 bg-black/10 backdrop-blur-sm"
-                  placeholder="Título da tarefa"
+                  className="w-full px-3 py-2 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent text-black/75 placeholder-white/60 bg-white/30 backdrop-blur-sm text-sm"
+                  placeholder="Task title"
                 />
                 <textarea
                   value={editData.description}
                   onChange={(e) => setEditData({ ...editData, description: e.target.value })}
-                  className="w-full px-3 py-2 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent text-white placeholder-white/60 bg-black/10 backdrop-blur-sm"
-                  placeholder="Descrição da tarefa"
+                  className="w-full px-3 py-2 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent text-black/75 placeholder-white/60 bg-white/30 backdrop-blur-sm text-sm"
+                  placeholder="Task description"
                   rows={3}
                 />
                 <input
                   type="date"
                   value={editData.due_date}
                   onChange={(e) => setEditData({ ...editData, due_date: e.target.value })}
-                  className="px-3 py-2 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent text-white bg-black/10 backdrop-blur-sm"
+                  className="w-full px-3 py-2 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent text-black/75 bg-white/30 backdrop-blur-sm text-sm"
                 />
                 
                 {showAIImprove && (
@@ -133,16 +138,16 @@ export default function TodoItem({ todo, onUpdate }: TodoItemProps) {
                     <textarea
                       value={aiPrompt}
                       onChange={(e) => setAiPrompt(e.target.value)}
-                      className="w-full px-3 py-2 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent text-white placeholder-white/60 bg-black/10 backdrop-blur-sm"
-                      placeholder="Digite seu prompt para a IA..."
+                      className="w-full px-3 py-2 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent text-black/75 placeholder-white/60 bg-white/30 backdrop-blur-sm text-sm"
+                      placeholder="Enter your AI prompt..."
                       rows={2}
                     />
                     <button
                       onClick={handleAIImprove}
                       disabled={isLoading}
-                      className="px-4 py-2 bg-black/10 backdrop-blur-sm text-white rounded-md disabled:opacity-50 transition-all duration-300 font-medium hover:scale-105 border border-white/20"
+                      className="px-4 py-2 bg-white/30 backdrop-blur-sm text-black rounded-md disabled:opacity-50 transition-all duration-300 font-medium hover:scale-105 border border-white/20 text-sm"
                     >
-                      {isLoading ? 'Processando...' : 'Aplicar Melhorias'}
+                      {isLoading ? 'Processing...' : 'Apply Improvements'}
                     </button>
                   </div>
                 )}
@@ -151,37 +156,37 @@ export default function TodoItem({ todo, onUpdate }: TodoItemProps) {
                   <button
                     onClick={handleSave}
                     disabled={isLoading}
-                    className="px-4 py-2 bg-black/10 backdrop-blur-sm text-white rounded-md disabled:opacity-50 transition-all duration-300 font-medium hover:scale-105 border border-white/20"
+                    className="px-4 py-2 flex-1 bg-white/30 backdrop-blur-sm text-black rounded-md disabled:opacity-50 transition-all duration-300 font-medium hover:scale-105 border border-white/20 text-sm"
                   >
-                    Salvar
+                    Save
                   </button>
                   <button
                     onClick={() => setIsEditing(false)}
-                    className="px-4 py-2 bg-black/10 backdrop-blur-sm text-white rounded-md transition-all duration-300 font-medium hover:scale-105 border border-white/20"
+                    className="px-4 py-2 flex-1 bg-white/30 backdrop-blur-sm text-black rounded-md transition-all duration-300 font-medium hover:scale-105 border border-white/20 text-sm"
                   >
-                    Cancelar
+                    Cancel
                   </button>
                   <button
                     onClick={() => setShowAIImprove(!showAIImprove)}
-                    className="px-4 py-2 bg-black/10 backdrop-blur-sm text-white rounded-md transition-all duration-300 font-medium hover:scale-105 border border-white/20"
+                    className="px-4 py-2 flex-1 bg-white/30 backdrop-blur-sm text-black rounded-md transition-all duration-300 font-medium hover:scale-105 border border-white/20 text-sm"
                   >
-                    Aperfeiçoar com AI
+                    Enhance with AI
                   </button>
                 </div>
               </div>
             ) : (
               <div>
-                <h3 className={`font-medium ${todo.completed ? 'line-through text-white/60' : 'text-white'}`}>
+                <h3 className={`font-medium ${todo.completed ? 'line-through text-black/60' : 'text-black'}`}>
                   {todo.title}
                 </h3>
                 {todo.description && (
-                  <p className={`text-sm mt-1 ${todo.completed ? 'text-white/50' : 'text-white/80'}`}>
+                  <p className={`text-sm mt-1 ${todo.completed ? 'text-black/50' : 'text-black/80'}`}>
                     {todo.description}
                   </p>
                 )}
                 {todo.due_date && (
-                  <p className={`text-xs mt-1 ${todo.completed ? 'text-white/50' : 'text-white/70'}`}>
-                    Data: {new Date(todo.due_date).toLocaleDateString('pt-BR')}
+                  <p className={`text-xs mt-1 ${todo.completed ? 'text-black/50' : 'text-black/70'}`}>
+                    Date: {new Date(todo.due_date).toLocaleDateString('en-US')}
                   </p>
                 )}
               </div>
@@ -193,7 +198,7 @@ export default function TodoItem({ todo, onUpdate }: TodoItemProps) {
           <div className="flex items-center space-x-2">
             <button
               onClick={() => setIsEditing(true)}
-              className="p-2 text-white/80 hover:text-white transition-colors"
+              className="p-2 text-black/80 hover:text-black transition-colors"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -201,7 +206,7 @@ export default function TodoItem({ todo, onUpdate }: TodoItemProps) {
             </button>
             <button
               onClick={handleDelete}
-              className="p-2 text-white/80 hover:text-red-300 transition-colors"
+              className="p-2 text-black/80 hover:text-red-300 transition-colors"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
