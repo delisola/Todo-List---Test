@@ -5,11 +5,12 @@ import { UpdateTodoData } from '@/types/todo'
 // GET - Buscar tarefa específica
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const todos = await todoService.getAllTodos()
-    const todo = todos.find(t => t.id === params.id)
+    const todo = todos.find(t => t.id === id)
     
     if (!todo) {
       return NextResponse.json(
@@ -40,9 +41,10 @@ export async function GET(
 // PUT - Atualizar tarefa
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const body = await request.json()
     
     const updateData: UpdateTodoData = {}
@@ -72,7 +74,7 @@ export async function PUT(
       updateData.completed = Boolean(body.completed)
     }
 
-    const updatedTodo = await todoService.updateTodo(params.id, updateData)
+    const updatedTodo = await todoService.updateTodo(id, updateData)
     
     if (!updatedTodo) {
       return NextResponse.json(
@@ -103,10 +105,11 @@ export async function PUT(
 // DELETE - Excluir tarefa
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await todoService.deleteTodo(params.id)
+    const { id } = await params
+    await todoService.deleteTodo(id)
     
     return NextResponse.json({ 
       success: true, 
