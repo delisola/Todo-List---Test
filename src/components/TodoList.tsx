@@ -61,7 +61,7 @@ export default function TodoList() {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-white mb-2 drop-shadow-lg">Todo List</h1>
-          <p className="text-white/90 text-lg drop-shadow-md">Organize your tasks efficiently</p>
+          <p className="text-white/90 text-lg drop-shadow-ld">App created for job application</p>
         </div>
 
         {/* Add Task Button */}
