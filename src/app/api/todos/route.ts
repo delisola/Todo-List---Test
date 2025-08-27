@@ -1,9 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { todoService } from '@/lib/todoService'
 import { CreateTodoData } from '@/types/todo'
+import { validateApiKey } from '@/lib/auth'
+
+// Função para verificar autenticação
+function checkAuth(request: NextRequest) {
+  const authHeader = request.headers.get('authorization')
+  
+  if (!validateApiKey(authHeader)) {
+    return NextResponse.json(
+      { 
+        success: false, 
+        error: 'API Key inválida ou ausente' 
+      },
+      { status: 401 }
+    )
+  }
+  
+  return null // Autenticação válida
+}
 
 // GET - Buscar todas as tarefas
-export async function GET() {
+export async function GET(request: NextRequest) {
+  // Verificar autenticação
+  const authError = checkAuth(request)
+  if (authError) return authError
+
   try {
     const todos = await todoService.getAllTodos()
     return NextResponse.json({ 
@@ -24,6 +46,10 @@ export async function GET() {
 
 // POST - Criar nova tarefa
 export async function POST(request: NextRequest) {
+  // Verificar autenticação
+  const authError = checkAuth(request)
+  if (authError) return authError
+
   try {
     const body = await request.json()
     
