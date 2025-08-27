@@ -57,12 +57,28 @@ export default function TodoList() {
   return (
     <>
       <div className="bg-noise"></div>
-      <div className="main-container container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-black mb-2 drop-shadow-lg">Todo List</h1>
-          <p className="text-black/90 text-lg drop-shadow-ld">App created for job application</p>
+      
+      {/* Floating Background Text */}
+      <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-0">
+        <div className="text-white/10 text-[20rem] font-black tracking-wider select-none transform -rotate-12">
+          TO DO LIST
         </div>
+      </div>
+      
+      {/* Floating Paragraphs - Alinhados à esquerda de fora do container das tarefas */}
+      <div className="fixed left-1/2 transform -translate-x-[425px] top-1/2 translate-y-[100px] pointer-events-none z-0">
+        <div className="w-[250px] text-left space-y-3">
+          <p className='text-white/25 text-[.75rem] tracking-wider select-none transform'>
+            Esta aplicação é um assistente inteligente para gerenciamento de tarefas (ToDo List).
+            Ela foi projetada para compreender mensagens em linguagem natural dos usuários, identificar a intenção (como criar, editar, excluir, buscar ou listar tarefas) e executar a ação correspondente de forma automática.
+          </p>
+          <p className='text-white/25 text-[.75rem] tracking-wider select-none transform'>
+            Além disso, o assistente conta com um estado de confirmação: sempre que identifica que o título de uma nova mensagem pode estar relacionado a uma tarefa existente, ele gera uma pergunta de validação para o usuário antes de executar a ação. Isso garante maior precisão e evita alterações indesejadas.
+          </p>
+        </div>
+      </div>
+      
+      <div className="main-container container mx-auto px-4 py-8 relative z-10">
 
         {/* Add Task Button */}
         <div className="text-center mb-6">
