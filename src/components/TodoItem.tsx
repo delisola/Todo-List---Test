@@ -62,21 +62,15 @@ export default function TodoItem({ todo, onUpdate, onDelete }: TodoItemProps) {
     
     try {
       setIsLoading(true)
-      // Here you can integrate with an AI API like OpenAI
-      // For now, I'll simulate a simple improvement
-      const improvedTitle = `${editData.title} (Improved)`
-      const improvedDescription = `${editData.description}\n\nAI suggested improvements: ${aiPrompt}`
       
-      const updatedTodo = await todoService.updateTodo(todo.id, {
-        title: improvedTitle,
-        description: improvedDescription
-      })
+      // Usar o novo endpoint de enhance que conecta com n8n
+      const updatedTodo = await todoService.enhanceTodo(todo.id, aiPrompt)
       
       if (updatedTodo) {
         setEditData({
-          title: improvedTitle,
-          description: improvedDescription,
-          due_date: editData.due_date
+          title: updatedTodo.title,
+          description: updatedTodo.description,
+          due_date: updatedTodo.due_date || ''
         })
         
         onUpdate(updatedTodo)
@@ -85,6 +79,7 @@ export default function TodoItem({ todo, onUpdate, onDelete }: TodoItemProps) {
       }
     } catch (error) {
       console.error('Error improving with AI:', error)
+      alert('Erro ao melhorar tarefa com IA. Tente novamente.')
     } finally {
       setIsLoading(false)
     }

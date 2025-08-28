@@ -71,5 +71,35 @@ export const todoService = {
   // Mark as done/undone
   async toggleTodo(id: string, completed: boolean): Promise<Todo | null> {
     return this.updateTodo(id, { completed })
+  },
+
+  // Enhance todo with AI via n8n webhook
+  async enhanceTodo(id: string, prompt: string): Promise<Todo | null> {
+    try {
+      const response = await fetch(`/api/todos/${id}/enhance`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_API_KEY || 'n8n-api-key-123'}`
+        },
+        body: JSON.stringify({ prompt })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to enhance todo')
+      }
+
+      const result = await response.json()
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to enhance todo')
+      }
+
+      return result.data
+    } catch (error) {
+      console.error('Error enhancing todo:', error)
+      throw error
+    }
   }
 } 
