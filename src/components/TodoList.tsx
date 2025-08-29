@@ -65,15 +65,15 @@ export default function TodoList() {
         </div>
       </div>
       
-      {/* Floating Paragraphs - Alinhados à esquerda de fora do container das tarefas */}
+      {/* Floating Paragraphs - Left aligned outside the tasks container */}
       <div className="fixed left-1/2 transform -translate-x-[425px] top-1/2 translate-y-[100px] pointer-events-none z-0">
         <div className="w-[250px] text-left space-y-3">
           <p className='text-white/25 text-[.75rem] tracking-wider select-none transform'>
-            Esta aplicação é um assistente inteligente para gerenciamento de tarefas (ToDo List).
-            Ela foi projetada para compreender mensagens em linguagem natural dos usuários, identificar a intenção (como criar, editar, excluir, buscar ou listar tarefas) e executar a ação correspondente de forma automática.
+            This application is an intelligent assistant for task management (ToDo List).
+            It is designed to understand natural language messages from users, identify the intention (such as creating, editing, deleting, searching, or listing tasks) and execute the corresponding action automatically.
           </p>
           <p className='text-white/25 text-[.75rem] tracking-wider select-none transform'>
-            Além disso, o assistente conta com um estado de confirmação: sempre que identifica que o título de uma nova mensagem pode estar relacionado a uma tarefa existente, ele gera uma pergunta de validação para o usuário antes de executar a ação. Isso garante maior precisão e evita alterações indesejadas.
+            Additionally, the assistant has a confirmation state: whenever it identifies that the title of a new message may be related to an existing task, it generates a validation question for the user before executing the action. This ensures greater accuracy and prevents unwanted changes.
           </p>
         </div>
       </div>
@@ -92,6 +92,19 @@ export default function TodoList() {
             Add Task
           </button>
         </div>
+
+        {/* Inline Form - Moved outside the tasks condition */}
+        {showInlineForm && (
+          <div className="max-w-[600px] mx-auto mb-6">
+            <InlineTodoForm 
+              onSuccess={(newTodo) => {
+                handleTodoCreate(newTodo)
+                setShowInlineForm(false)
+              }} 
+              onCancel={() => setShowInlineForm(false)} 
+            />
+          </div>
+        )}
 
         {/* Tasks Section - Max width 600px */}
         <div className="max-w-[600px] mx-auto">
@@ -116,19 +129,6 @@ export default function TodoList() {
               </div>
             ) : (
               <div className="space-y-3">
-                {/* Inline Form - Sempre em primeiro */}
-                {showInlineForm && (
-                  <div className="animate-in slide-in-from-bottom-2 duration-300 ease-out">
-                    <InlineTodoForm 
-                      onSuccess={(newTodo) => {
-                        handleTodoCreate(newTodo)
-                        setShowInlineForm(false)
-                      }} 
-                      onCancel={() => setShowInlineForm(false)} 
-                    />
-                  </div>
-                )}
-                
                 {/* Task list */}
                 {todos.map((todo) => (
                   <TodoItem 
