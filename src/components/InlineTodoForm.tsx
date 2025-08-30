@@ -10,10 +10,16 @@ interface InlineTodoFormProps {
 }
 
 export default function InlineTodoForm({ onSuccess, onCancel }: InlineTodoFormProps) {
+  // Função para obter a data de hoje no formato YYYY-MM-DD
+  const getTodayDate = () => {
+    const today = new Date()
+    return today.toISOString().split('T')[0]
+  }
+
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    due_date: ''
+    due_date: getTodayDate() // Inicia com a data de hoje
   })
   const [isLoading, setIsLoading] = useState(false)
 
@@ -34,7 +40,7 @@ export default function InlineTodoForm({ onSuccess, onCancel }: InlineTodoFormPr
       })
       
       if (newTodo) {
-        setFormData({ title: '', description: '', due_date: '' })
+        setFormData({ title: '', description: '', due_date: getTodayDate() })
         onSuccess(newTodo)
       }
     } catch (error) {
@@ -48,11 +54,11 @@ export default function InlineTodoForm({ onSuccess, onCancel }: InlineTodoFormPr
   return (
     <div className="bg-white/30 backdrop-blur-sm rounded-xl p-4 border border-white/20 shadow-lg">
       <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-lg font-medium text-black">New Task</h3>
-                  <button
-            onClick={onCancel}
-            className="text-black/80 hover:text-black transition-colors"
-          >
+        <h3 className="text-lg font-medium text-black">New Task</h3>
+        <button
+          onClick={onCancel}
+          className="text-black/80 hover:text-black transition-colors"
+        >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
@@ -69,7 +75,7 @@ export default function InlineTodoForm({ onSuccess, onCancel }: InlineTodoFormPr
             value={formData.title}
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
             className="w-full px-3 py-2 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent text-black/75 placeholder-white/60 bg-white/30 backdrop-blur-sm text-sm"
-                          placeholder="Enter task title"
+            placeholder="Enter task title"
             required
             autoFocus
           />
@@ -83,7 +89,7 @@ export default function InlineTodoForm({ onSuccess, onCancel }: InlineTodoFormPr
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             className="w-full px-3 py-2 border border-white/30 rounded-md focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent text-black/75 placeholder-white/60 bg-white/30 backdrop-blur-sm text-sm"
-                          placeholder="Enter task description"
+            placeholder="Enter task description"
             rows={2}
           />
         </div>

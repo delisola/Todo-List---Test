@@ -10,7 +10,11 @@ interface Message {
   timestamp: Date
 }
 
-export default function ChatInterface() {
+interface ChatInterfaceProps {
+  onResponseReceived?: () => void
+}
+
+export default function ChatInterface({ onResponseReceived }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -77,6 +81,11 @@ export default function ChatInterface() {
       }
 
       setMessages(prev => [...prev, botMessage])
+      
+      // Call the callback to notify that a response was received
+      if (onResponseReceived) {
+        onResponseReceived()
+      }
     } catch (error) {
       console.error('Error sending message:', error)
       

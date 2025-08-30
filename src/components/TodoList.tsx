@@ -5,17 +5,50 @@ import { Todo } from '@/types/todo'
 import { todoService } from '@/lib/todoService'
 import TodoItem from './TodoItem'
 import InlineTodoForm from './InlineTodoForm'
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
 
-export default function TodoList() {
+interface TodoListProps {
+  refreshTrigger: number
+}
+
+export default function TodoList({ refreshTrigger }: TodoListProps) {
   const [todos, setTodos] = useState<Todo[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [showInlineForm, setShowInlineForm] = useState(false)
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  )
 
   const loadTodos = async () => {
     try {
       setIsLoading(true)
       const data = await todoService.getAllTodos()
-      setTodos(data)
+      // Ordenar: tarefas não completadas primeiro, depois as completadas
+      const sortedData = data.sort((a, b) => {
+        if (a.completed === b.completed) {
+          return 0 // Mantém a ordem original dentro de cada grupo
+        }
+        return a.completed ? 1 : -1 // Não completadas primeiro
+      })
+      setTodos(sortedData)
     } catch (error) {
       console.error('Error loading todos:', error)
     } finally {
@@ -27,6 +60,13 @@ export default function TodoList() {
     loadTodos()
   }, [])
 
+  // Listen for refresh trigger changes
+  useEffect(() => {
+    if (refreshTrigger > 0) {
+      loadTodos()
+    }
+  }, [refreshTrigger])
+
   const completedTodos = todos.filter(todo => todo.completed)
   const pendingTodos = todos.filter(todo => !todo.completed)
 
@@ -37,11 +77,18 @@ export default function TodoList() {
 
   // Function to update a specific task without reloading the entire list
   const handleTodoUpdate = (updatedTodo: Todo) => {
-    setTodos(prevTodos => 
-      prevTodos.map(todo => 
+    setTodos(prevTodos => {
+      const updatedTodos = prevTodos.map(todo => 
         todo.id === updatedTodo.id ? updatedTodo : todo
       )
-    )
+      // Reordenar após atualização
+      return updatedTodos.sort((a, b) => {
+        if (a.completed === b.completed) {
+          return 0
+        }
+        return a.completed ? 1 : -1
+      })
+    })
   }
 
   // Function to remove a specific task without reloading the entire list
@@ -51,7 +98,38 @@ export default function TodoList() {
 
   // Function to add a new task without reloading the entire list
   const handleTodoCreate = (newTodo: Todo) => {
-    setTodos(prevTodos => [newTodo, ...prevTodos])
+    setTodos(prevTodos => {
+      const newTodos = [newTodo, ...prevTodos]
+      // Reordenar após adicionar nova tarefa
+      return newTodos.sort((a, b) => {
+        if (a.completed === b.completed) {
+          return 0
+        }
+        return a.completed ? 1 : -1
+      })
+    })
+  }
+
+  // Handle drag end event
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+
+    if (active.id !== over?.id) {
+      setTodos((items) => {
+        const oldIndex = items.findIndex(item => item.id === active.id)
+        const newIndex = items.findIndex(item => item.id === over?.id)
+
+        const newItems = arrayMove(items, oldIndex, newIndex)
+        
+        // Reordenar após drag and drop para manter a regra de ordenação
+        return newItems.sort((a, b) => {
+          if (a.completed === b.completed) {
+            return 0
+          }
+          return a.completed ? 1 : -1
+        })
+      })
+    }
   }
 
   return (
@@ -84,7 +162,7 @@ export default function TodoList() {
         <div className="text-center mb-6">
           <button
             onClick={() => setShowInlineForm(true)}
-            className="bg-white/30 backdrop-blur-sm text-black px-6 py-3 rounded-lg font-medium transition-colors duration-300 flex items-center justify-center mx-auto border border-white/20"
+            className="bg-white/30 backdrop-blur-sm text-black px-6 py-3 rounded-lg font-medium transition-colors duration-300 flex items-center justify-center mx-auto border border-white/20 hover:bg-white/40"
           >
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -111,11 +189,14 @@ export default function TodoList() {
           <div className="bg-white/25 backdrop-blur-sm rounded-2xl p-6 mb-6 border border-white/20">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold text-black">Tasks</h2>
-              <button className="text-black/80 hover:text-black transition-colors">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-                </svg>
-              </button>
+              <div className="flex items-center space-x-2">
+                <span className="text-xs text-black/60">Drag to reorder</span>
+                <button className="text-black/80 hover:text-black transition-colors">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                  </svg>
+                </button>
+              </div>
             </div>
 
             {isLoading ? (
@@ -128,17 +209,28 @@ export default function TodoList() {
                 <p className="text-black/80">No tasks found. Create your first task!</p>
               </div>
             ) : (
-              <div className="space-y-3">
-                {/* Task list */}
-                {todos.map((todo) => (
-                  <TodoItem 
-                    key={todo.id} 
-                    todo={todo} 
-                    onUpdate={handleTodoUpdate}
-                    onDelete={handleTodoDelete}
-                  />
-                ))}
-              </div>
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext
+                  items={todos.map(todo => todo.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className="space-y-3">
+                    {/* Task list */}
+                    {todos.map((todo) => (
+                      <TodoItem 
+                        key={todo.id} 
+                        todo={todo} 
+                        onUpdate={handleTodoUpdate}
+                        onDelete={handleTodoDelete}
+                      />
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
             )}
           </div>
 

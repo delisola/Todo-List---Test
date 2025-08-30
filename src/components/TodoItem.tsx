@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { Todo } from '@/types/todo'
 import { todoService } from '@/lib/todoService'
+import { useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 
 interface TodoItemProps {
   todo: Todo
@@ -21,6 +23,28 @@ export default function TodoItem({ todo, onUpdate, onDelete }: TodoItemProps) {
     description: todo.description,
     due_date: todo.due_date || ''
   })
+
+  // Função para formatar a data corretamente sem problemas de fuso horário
+  const formatDate = (dateString: string) => {
+    const [year, month, day] = dateString.split('-')
+    return `${month}/${day}/${year}`
+  }
+
+  // Configuração do drag and drop
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: todo.id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  }
 
   const handleToggleComplete = async () => {
     try {
@@ -86,9 +110,26 @@ export default function TodoItem({ todo, onUpdate, onDelete }: TodoItemProps) {
   }
 
   return (
-    <div className="rounded-xl p-4 mb-3 bg-white/30 backdrop-blur-sm border border-white/20">
+    <div 
+      ref={setNodeRef}
+      style={style}
+      className={`rounded-xl p-4 mb-3 bg-white/30 backdrop-blur-sm border border-white/20 transition-all duration-200 ${
+        isDragging ? 'shadow-2xl scale-105' : ''
+      }`}
+    >
       <div className="flex items-center justify-between">
         <div className="flex items-center flex-1">
+          {/* Drag Handle */}
+          <div
+            {...attributes}
+            {...listeners}
+            className="mr-3 cursor-grab active:cursor-grabbing p-1 hover:bg-white/20 rounded transition-colors"
+          >
+            <svg className="w-4 h-4 text-black/60" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M7 2a2 2 0 1 1 .001 4.001A2 2 0 0 1 7 2zm0 6a2 2 0 1 1 .001 4.001A2 2 0 0 1 7 8zm0 6a2 2 0 1 1 .001 4.001A2 2 0 0 1 7 14zm6-8a2 2 0 1 1-.001-4.001A2 2 0 0 1 13 6zm0 2a2 2 0 1 1 .001 4.001A2 2 0 0 1 13 8zm0 6a2 2 0 1 1 .001 4.001A2 2 0 0 1 13 14z" />
+            </svg>
+          </div>
+
           <button
             onClick={handleToggleComplete}
             className={`w-6 h-6 rounded-full border-2 mr-3 flex items-center justify-center transition-colors ${
@@ -140,7 +181,7 @@ export default function TodoItem({ todo, onUpdate, onDelete }: TodoItemProps) {
                     <button
                       onClick={handleAIImprove}
                       disabled={isLoading}
-                      className="px-4 py-2 bg-white/30 backdrop-blur-sm text-black rounded-md disabled:opacity-50 transition-all duration-300 font-medium hover:scale-105 border border-white/20 text-sm"
+                      className="w-full px-4 py-2 bg-white/30 backdrop-blur-sm text-black rounded-md disabled:opacity-50 transition-colors duration-300 font-medium hover:bg-white/40 border border-white/20 text-sm"
                     >
                       {isLoading ? 'Processing...' : 'Apply Improvements'}
                     </button>
@@ -151,19 +192,19 @@ export default function TodoItem({ todo, onUpdate, onDelete }: TodoItemProps) {
                   <button
                     onClick={handleSave}
                     disabled={isLoading}
-                    className="px-4 py-2 flex-1 bg-white/30 backdrop-blur-sm text-black rounded-md disabled:opacity-50 transition-all duration-300 font-medium hover:scale-105 border border-white/20 text-sm"
+                    className="px-4 py-2 flex-1 bg-white/30 backdrop-blur-sm text-black rounded-md disabled:opacity-50 transition-colors duration-300 font-medium hover:bg-white/40 border border-white/20 text-sm"
                   >
                     Save
                   </button>
                   <button
                     onClick={() => setIsEditing(false)}
-                    className="px-4 py-2 flex-1 bg-white/30 backdrop-blur-sm text-black rounded-md transition-all duration-300 font-medium hover:scale-105 border border-white/20 text-sm"
+                    className="px-4 py-2 flex-1 bg-white/30 backdrop-blur-sm text-black rounded-md transition-colors duration-300 font-medium hover:bg-white/40 border border-white/20 text-sm"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={() => setShowAIImprove(!showAIImprove)}
-                    className="px-4 py-2 flex-1 bg-white/30 backdrop-blur-sm text-black rounded-md transition-all duration-300 font-medium hover:scale-105 border border-white/20 text-sm"
+                    className="px-4 py-2 flex-1 bg-white/30 backdrop-blur-sm text-black rounded-md transition-colors duration-300 font-medium hover:bg-white/40 border border-white/20 text-sm"
                   >
                     Enhance with AI
                   </button>
@@ -181,7 +222,7 @@ export default function TodoItem({ todo, onUpdate, onDelete }: TodoItemProps) {
                 )}
                 {todo.due_date && (
                   <p className={`text-xs mt-1 ${todo.completed ? 'text-black/50' : 'text-black/70'}`}>
-                    Date: {new Date(todo.due_date).toLocaleDateString('en-US')}
+                    Date: {formatDate(todo.due_date)}
                   </p>
                 )}
               </div>
